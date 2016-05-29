@@ -15,12 +15,18 @@ public class Pessoa {
     private String nome;
     private ArrayList<Post> posts;
     private ArrayList<Pessoa> listaDeAmigos;
+    private ArrayList<Like> personLikeList;
     public boolean visitado = false;
     
     public Pessoa(String nome){
         this.nome = nome;
         this.posts = new ArrayList<>();
         this.listaDeAmigos = new ArrayList<>();
+        this.personLikeList = new ArrayList<>();
+    }
+    
+    public boolean friendLikedPost(Pessoa p){
+        return this.posts.stream().anyMatch((post) -> (post.hasPessoa(p)));
     }
     
     public void adicionarPost(Post post){
@@ -71,6 +77,20 @@ public class Pessoa {
      */
     public void setListaDeAmigos(ArrayList<Pessoa> listaDeAmigos) {
         this.listaDeAmigos = listaDeAmigos;
+    }
+
+    /**
+     * @return the likeList
+     */
+    public ArrayList<Like> getLikeList() {
+        return personLikeList;
+    }
+
+    /**
+     * @param likeList the likeList to set
+     */
+    public void setLikeList(ArrayList<Like> likeList) {
+        this.personLikeList = likeList;
     }
     
 }

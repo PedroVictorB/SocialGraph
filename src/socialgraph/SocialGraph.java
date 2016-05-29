@@ -80,15 +80,23 @@ public class SocialGraph {
             Logger.getLogger(SocialGraph.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        for (Pessoa p : rede.getListaDePessoas()) {
-            for (Pessoa amigo : p.getListaDeAmigos()) {
-                //System.out.println(p.getNome() + " é amigo de " + amigo.getNome());
+        for (Pessoa pessoa : rede.getListaDePessoas()) {
+            for (Pessoa amigo : pessoa.getListaDeAmigos()) {
+                for(Post post : amigo.getPosts()){
+                    post.like(pessoa);
+                }
             }
         }
 
         SocialGraph g = new SocialGraph();
 
         g.buscaFeedNoticias(rede.findPessoa("Geniel"));
+        
+        for (Pessoa pessoa : rede.getListaDePessoas()) {
+            for(Like l : pessoa.getLikeList()){
+                System.out.println(pessoa.getNome()+" gostou de "+l.getKey()+" "+l.getCount()+" vezes.");
+            }
+        }
     }
 
     public void buscaFeedNoticias(Pessoa origem) {
@@ -99,24 +107,31 @@ public class SocialGraph {
 
         while (!pilha.isEmpty()) {
             Pessoa v = pilha.pop();
-            //System.out.println(pilha);
-
-            System.out.println("Inicio amigos de "+v.getNome());
             for (int i = 0; i < v.getListaDeAmigos().size(); i++) {
                 Pessoa adj = v.getListaDeAmigos().get(i);
-                System.out.println("Post de "+adj.getNome());
                 for(Post p : adj.getPosts()){
-                    for(String str : p.getKeyList()){
-                        System.out.println(str);
+                    if(p.hasPessoa(v)){
+                        for(String str : p.getKeyList()){
+                            boolean found = false;
+                            for(int j = 0;j < v.getLikeList().size();j++){
+                                if(v.getLikeList().get(j).getKey().equals(str)){
+                                    found = true;
+                                    v.getLikeList().get(j).incrementCount();
+                                }
+                            }
+                            if(!found){
+                                Like l = new Like(str);
+                                l.incrementCount();
+                                v.getLikeList().add(l);
+                            }
+                        }
                     }
                 }
                 if (adj.visitado == false) {
-                    //System.out.println(v.getNome() + " >> " + adj.getNome());
                     pilha.push(adj);
                     adj.visitado = true;
                 }
             }
-            System.out.println("Fim amigos de "+v.getNome());
         }
     }
 

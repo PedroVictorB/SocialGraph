@@ -33,6 +33,10 @@ public class Post {
         return getKeyList().contains(str);
     }
     
+    public boolean hasPessoa(Pessoa pessoa){
+        return this.likeList.stream().anyMatch((p) -> (p.getNome().equals(pessoa.getNome())));
+    }
+    
     public void like(Pessoa pessoa){
         getLikeList().add(pessoa);
     }
