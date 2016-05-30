@@ -10,6 +10,9 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -53,6 +56,7 @@ public class SocialGraph {
                 rede.setListaDePessoas(lista);
 
             }
+            int postID = 0;
             //Leitura de posts
             for (String line : Files.readAllLines(Paths.get("dados/posts.txt"), Charset.forName("ISO_8859_1"))) {
                 String[] postStr = line.split(" ");
@@ -62,6 +66,8 @@ public class SocialGraph {
                 if (p1 != null) {
                     String[] keys = postStr[1].split("/");//Pega as chaves dos posts
                     Post post = new Post();
+                    post.setPostID(postID);
+                    postID++;
                     for (String key : keys) {
                         post.adicionarKey(key);
                     }
@@ -72,7 +78,7 @@ public class SocialGraph {
                             p = p1;
                         }
                     }
-                    
+
                     rede.setListaDePessoas(lista);
                 }
             }
@@ -82,19 +88,20 @@ public class SocialGraph {
 
         for (Pessoa pessoa : rede.getListaDePessoas()) {
             for (Pessoa amigo : pessoa.getListaDeAmigos()) {
-                for(Post post : amigo.getPosts()){
+                for (Post post : amigo.getPosts()) {
                     post.like(pessoa);
                 }
             }
         }
+        //Fim dos dados
 
         SocialGraph g = new SocialGraph();
 
         g.buscaFeedNoticias(rede.findPessoa("Geniel"));
-        
+
         for (Pessoa pessoa : rede.getListaDePessoas()) {
-            for(Like l : pessoa.getLikeList()){
-                System.out.println(pessoa.getNome()+" gostou de "+l.getKey()+" "+l.getCount()+" vezes.");
+            for (Like l : pessoa.getLikeList()) {
+                //System.out.println(pessoa.getNome() + " gostou de " + l.getKey() + " " + l.getCount() + " vezes.");
             }
         }
     }
@@ -109,17 +116,17 @@ public class SocialGraph {
             Pessoa v = pilha.pop();
             for (int i = 0; i < v.getListaDeAmigos().size(); i++) {
                 Pessoa adj = v.getListaDeAmigos().get(i);
-                for(Post p : adj.getPosts()){
-                    if(p.hasPessoa(v)){
-                        for(String str : p.getKeyList()){
+                for (Post p : adj.getPosts()) {
+                    if (p.hasPessoa(v)) {
+                        for (String str : p.getKeyList()) {
                             boolean found = false;
-                            for(int j = 0;j < v.getLikeList().size();j++){
-                                if(v.getLikeList().get(j).getKey().equals(str)){
+                            for (int j = 0; j < v.getLikeList().size(); j++) {
+                                if (v.getLikeList().get(j).getKey().equals(str)) {
                                     found = true;
                                     v.getLikeList().get(j).incrementCount();
                                 }
                             }
-                            if(!found){
+                            if (!found) {
                                 Like l = new Like(str);
                                 l.incrementCount();
                                 v.getLikeList().add(l);
@@ -132,6 +139,12 @@ public class SocialGraph {
                     adj.visitado = true;
                 }
             }
+            Collections.sort(v.getLikeList(), new Comparator<Like>() {
+                @Override
+                public int compare(Like o1, Like o2) {
+                    return o1.getCount() > o2.getCount() ? -1 : (o1.getCount() > o2.getCount()) ? 1 : 0;
+                }
+            });
         }
     }
 

@@ -13,6 +13,7 @@ import java.util.HashMap;
  * @author Pedro
  */
 public class Post {
+    private int postID;
     private ArrayList<String> keyList;
     private ArrayList<Pessoa> likeList;
     
@@ -71,6 +72,20 @@ public class Post {
      */
     public void setLikeList(ArrayList<Pessoa> likeList) {
         this.likeList = likeList;
+    }
+
+    /**
+     * @return the postID
+     */
+    public int getPostID() {
+        return postID;
+    }
+
+    /**
+     * @param postID the postID to set
+     */
+    public void setPostID(int postID) {
+        this.postID = postID;
     }
     
 }
