@@ -10,9 +10,11 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,6 +46,8 @@ public class SocialGraph {
 
                 p1.adicionarAmigo(p2);
                 p2.adicionarAmigo(p1);
+
+                rede.adicionarAmizade(p1, p2);
 
                 for (Pessoa p : lista) {
                     if (p.getNome().equals(p1.getNome())) {
@@ -93,20 +97,44 @@ public class SocialGraph {
                 }
             }
         }
+        
+        for (Pessoa pessoa : rede.getListaDePessoas()) {
+            for (Post p : pessoa.getPosts()) {
+                for (String key : p.getKeyList()) {
+                    rede.adicionarRankPost(key, p);
+                }
+            }
+        }
+        
         //Fim dos dados
 
         SocialGraph g = new SocialGraph();
 
-        g.buscaFeedNoticias(rede.findPessoa("Geniel"));
+        g.buscaLikes(rede, rede.findPessoa("Geniel"));
 
         for (Pessoa pessoa : rede.getListaDePessoas()) {
+            //System.out.println(pessoa.getNome());
             for (Like l : pessoa.getLikeList()) {
-                //System.out.println(pessoa.getNome() + " gostou de " + l.getKey() + " " + l.getCount() + " vezes.");
+                for (RankPosts rp : rede.getRankDePosts()) {
+                    if(rp.getKeyString().equals(l.getKey())){
+                        Iterator ordered = rp.getPosts().entrySet().stream().sorted(Collections.reverseOrder(Map.Entry.comparingByValue())).iterator();
+                        //System.out.println(l.getKey());
+                        while(ordered.hasNext()){
+                            Entry thisEntry = (Entry) ordered.next();
+                            //System.out.println(thisEntry.getKey()+" "+thisEntry.getValue());
+                        }
+                    }
+                }
             }
         }
+        
+        Interface inter = new Interface(rede);
+        
+        inter.setVisible(true);
+        
     }
 
-    public void buscaFeedNoticias(Pessoa origem) {
+    public void buscaLikes(Rede rede, Pessoa origem) {
         Stack<Pessoa> pilha = new Stack<>();
 
         pilha.push(origem);
